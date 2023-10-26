@@ -31,7 +31,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.17.5
+  VERSION 3.17.6
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -78,7 +78,7 @@ find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
-find_package(Protobuf)
+find_package(Protobuf REQUIRED CONFIG)
 find_package(gRPC CONFIG)
 
 ####################################
