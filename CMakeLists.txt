@@ -21,6 +21,7 @@ set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_STATIC_LIBS OFF)
 set(BUILD_SHARED_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
+set(Protobuf_USE_STATIC_LIBS OFF)
 
 # Set cmake policy by version: https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
@@ -31,7 +32,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.17.6
+  VERSION 3.17.26
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -78,6 +79,7 @@ find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
+find_package(Absl REQUIRED CONFIG)
 find_package(Protobuf REQUIRED CONFIG)
 find_package(gRPC CONFIG)
 
