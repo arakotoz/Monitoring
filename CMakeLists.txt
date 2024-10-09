@@ -32,7 +32,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.17.26
+  VERSION 3.18.2
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -79,8 +79,7 @@ find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
-find_package(Absl REQUIRED CONFIG)
-find_package(Protobuf REQUIRED CONFIG)
+find_package(Protobuf CONFIG)
 find_package(gRPC CONFIG)
 
 ####################################
@@ -250,6 +249,7 @@ foreach (example ${EXAMPLES})
   target_link_libraries(${example_name}
     PRIVATE
       Monitoring Boost::program_options
+      $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
   )
 endforeach()
 
