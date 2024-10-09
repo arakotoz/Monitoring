@@ -12,9 +12,9 @@
 # Author Adam Wegrzynek <adam.wegrzynek@cern.ch>
 
 
-####################################
+# # # # # ###############################
 # General project definition
-####################################
+# # # # # ###############################
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.5.2 FATAL_ERROR)
 set(Boost_USE_STATIC_RUNTIME OFF)
@@ -24,9 +24,9 @@ set(Boost_USE_MULTITHREADED ON)
 
 # Set cmake policy by version: https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html
 if(${CMAKE_VERSION} VERSION_LESS 3.12)
-    cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
+  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
 else()
-    cmake_policy(VERSION 3.12)
+  cmake_policy(VERSION 3.12)
 endif()
 
 # Define project
@@ -67,9 +67,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 --coverage")
 endif()
 
-####################################
+# # # # # ###############################
 # Dependencies
-####################################
+# # # # # ###############################
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/cmake")
 
@@ -79,19 +79,38 @@ find_package(CURL MODULE)
 find_package(RdKafka CONFIG)
 find_package(InfoLogger CONFIG)
 find_package(Protobuf CONFIG)
+if(Protobuf_FOUND)
+  message(STATUS "Found Protobuf: ${PROTOBUF_ROOT}")
+else()
+  message(FATAL_ERROR "Protobuf librairies not found")
+endif()
+# upb block added to solve https://github.com/protocolbuffers/protobuf/issues/18307
+find_library(UPB_LIBRAIRIES NAMES upb)
+if(UPB_LIBRARIES)
+  add_library(protobuf::libupb STATIC IMPORTED)
+  add_executable(protobuf::protoc-gen-upb IMPORTED)
+  add_executable(protobuf::protoc-gen-upbdefs IMPORTED)
+  add_executable(protobuf::protoc-gen-upb_minitable IMPORTED)
+  message(STATUS "Protobuf upb librairy and executables added")
+endif()
 find_package(gRPC CONFIG)
+if(gRPC_FOUND)
+  message(STATUS "Found gRPC: ${GRPC_ROOT}")
+else()
+  message(FATAL_ERROR "gRPC librairies not found")
+endif()
 
-####################################
+# # # # # ###############################
 # Set OUTPUT vars
-####################################
+# # # # # ###############################
 
 set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/bin")
 set(INCLUDE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}/include")
 
-####################################
+# # # # # ###############################
 # Handle RPATH
-####################################
+# # # # # ###############################
 include(GNUInstallDirs)
 
 # Use relative RPATHs
@@ -107,9 +126,9 @@ if("${isSystemDir}" STREQUAL "-1")
 endif()
 unset(isSystemDir)
 
-####################################
+# # # # # ###############################
 # Library
-####################################
+# # # # # ###############################
 
 # Backends
 message(STATUS "Backends")
@@ -168,11 +187,11 @@ if(ApMon_FOUND)
 endif()
 
 if(RdKafka_FOUND)
-   message(STATUS "  Compiling Kafka transport")
+  message(STATUS "  Compiling Kafka transport")
 endif()
 
 if(CURL_FOUND)
-   message(STATUS "  Compiling HTTP transport/InfluxDB 2.x backend")
+  message(STATUS "  Compiling HTTP transport/InfluxDB 2.x backend")
 endif()
 
 # Detect operating system
@@ -200,7 +219,7 @@ if (APPLE)
 endif()
 
 if(Protobuf_FOUND AND RdKafka_FOUND)
-   message(STATUS "Compiling Kafka consumer with protobuf deserializer")
+  message(STATUS "Compiling Kafka consumer with protobuf deserializer")
 endif()
 
 # Handle custom compile definitions
@@ -220,9 +239,9 @@ target_compile_definitions(Monitoring
 target_compile_features(Monitoring PUBLIC cxx_std_17)
 
 
-####################################
+# # # # # ###############################
 # Executables
-####################################
+# # # # # ###############################
 
 set(EXAMPLES
   examples/1-Basic.cxx
@@ -258,9 +277,9 @@ if(RdKafka_FOUND)
 endif()
 
 
-####################################
+# # # # # ###############################
 # Generate protobuf
-####################################
+# # # # # ###############################
 if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
   set(PROTO_FILE ${CMAKE_CURRENT_SOURCE_DIR}/proto/envs.proto)
   get_filename_component(PROTO_OUTPUT_NAME ${PROTO_FILE} NAME_WE)
@@ -299,9 +318,9 @@ if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
   set_target_properties(14-OrbitId PROPERTIES OUTPUT_NAME "o2-monitoring-orbitid")
 endif()
 
-####################################
+# # # # # ###############################
 # gRPC
-####################################
+# # # # # ###############################
 if(Protobuf_FOUND AND gRPC_FOUND)
   set(PROTO_FILES ${CMAKE_CURRENT_SOURCE_DIR}/proto/odc.proto ${CMAKE_CURRENT_SOURCE_DIR}/proto/o2control.proto)
   set(EXAMPLES examples/15-ODC.cxx examples/16-AliECS.cxx)
@@ -347,9 +366,9 @@ if(Protobuf_FOUND AND gRPC_FOUND)
   set_target_properties(16-AliECS PROPERTIES OUTPUT_NAME "o2-monitoring-aliecs-tasks")
 endif()
 
-####################################
+# # # # # ###############################
 # Tests
-####################################
+# # # # # ###############################
 
 enable_testing()
 
@@ -382,9 +401,9 @@ foreach (test ${TEST_SRCS})
 endforeach()
 
 
-####################################
+# # # # # ###############################
 # Install
-####################################
+# # # # # ###############################
 
 # Install library
 install(TARGETS Monitoring 5-Benchmark
