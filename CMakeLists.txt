@@ -32,7 +32,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.18.2
+  VERSION 3.19.2
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -111,6 +111,13 @@ else()
     message("RDKAFKA_ROOT not set, corresponding libs and binaries won't be built")
 endif()
 
+if(gRPC_FOUND)
+    message("gRPC found, we enable corresponding libs and binaries")
+else()
+    message("gRPC not found, corresponding libs and binaries won't be built")
+endif()
+
+
 ####################################
 # Set OUTPUT vars
 # # # # # ###############################
@@ -184,13 +191,13 @@ set_target_properties(Monitoring PROPERTIES OUTPUT_NAME "O2Monitoring")
 target_link_libraries(Monitoring
   PUBLIC
     Boost::boost
-    $<$<BOOL:${RdKafka_FOUND}>:${RDKAFKA_LIBS}>
   PRIVATE
     Boost::system
     pthread
     $<$<BOOL:${ApMon_FOUND}>:ApMon::ApMon>
     $<$<BOOL:${CURL_FOUND}>:CURL::libcurl>
     $<$<BOOL:${InfoLogger_FOUND}>:AliceO2::InfoLogger>
+    $<$<BOOL:${RdKafka_FOUND}>:${RDKAFKA_LIBS}>
 )
 
 # Handle ApMon optional dependency
