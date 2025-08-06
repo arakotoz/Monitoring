@@ -32,7 +32,7 @@ endif()
 
 # Define project
 project(Monitoring
-  VERSION 3.19.2
+  VERSION 3.19.8
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -299,7 +299,18 @@ if(RdKafka_FOUND)
 endif()
 
 
-# # # # # ###############################
+# executable: o2-monitoring-send
+add_executable(
+  o2-monitoring-send
+  src/sendMetric.cxx
+)
+target_link_libraries(
+  o2-monitoring-send
+  Monitoring
+)
+install(TARGETS o2-monitoring-send)
+
+####################################
 # Generate protobuf
 # # # # # ###############################
 if(RdKafka_FOUND AND Protobuf_FOUND AND CURL_FOUND)
