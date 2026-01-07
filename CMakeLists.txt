@@ -16,23 +16,21 @@
 # General project definition
 # # # # # ###############################
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.5.2 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 3.27.1 FATAL_ERROR)
 set(Boost_USE_STATIC_RUNTIME OFF)
 set(Boost_USE_STATIC_LIBS OFF)
 set(BUILD_SHARED_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Protobuf_USE_STATIC_LIBS OFF)
+set(O2_MONITORING_KAFKA_ENABLE ON)
+set(O2_MONITORING_CONTROL_ENABLE ON)
 
 # Set cmake policy by version: https://cmake.org/cmake/help/latest/manual/cmake-policies.7.html
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-else()
-  cmake_policy(VERSION 3.12)
-endif()
+cmake_policy(VERSION 3.12)
 
 # Define project
 project(Monitoring
-  VERSION 3.19.8
+  VERSION 3.19.9
   DESCRIPTION "O2 Monitoring library"
   LANGUAGES CXX
 )
@@ -78,26 +76,30 @@ find_package(Boost 1.70 REQUIRED COMPONENTS unit_test_framework program_options 
 find_package(ApMon MODULE)
 find_package(CURL MODULE)
 find_package(InfoLogger CONFIG)
-find_package(Protobuf CONFIG)
-if(Protobuf_FOUND)
-  message(STATUS "Found Protobuf: ${PROTOBUF_ROOT}")
-else()
-  message(FATAL_ERROR "Protobuf librairies not found")
+if(O2_MONITORING_KAFKA_ENABLE OR O2_MONITORING_CONTROL_ENABLE)
+  find_package(Protobuf CONFIG)
+  if(Protobuf_FOUND)
+    message(STATUS "Found Protobuf: ${PROTOBUF_ROOT}")
+  else()
+    message(FATAL_ERROR "Protobuf librairies not found")
+  endif()
+  # upb block added to solve https://github.com/protocolbuffers/protobuf/issues/18307
+  find_library(UPB_LIBRAIRIES NAMES upb)
+  if(UPB_LIBRARIES)
+    add_library(protobuf::libupb STATIC IMPORTED)
+    add_executable(protobuf::protoc-gen-upb IMPORTED)
+    add_executable(protobuf::protoc-gen-upbdefs IMPORTED)
+    add_executable(protobuf::protoc-gen-upb_minitable IMPORTED)
+    message(STATUS "Protobuf upb librairy and executables added")
+  endif()
 endif()
-# upb block added to solve https://github.com/protocolbuffers/protobuf/issues/18307
-find_library(UPB_LIBRAIRIES NAMES upb)
-if(UPB_LIBRARIES)
-  add_library(protobuf::libupb STATIC IMPORTED)
-  add_executable(protobuf::protoc-gen-upb IMPORTED)
-  add_executable(protobuf::protoc-gen-upbdefs IMPORTED)
-  add_executable(protobuf::protoc-gen-upb_minitable IMPORTED)
-  message(STATUS "Protobuf upb librairy and executables added")
-endif()
-find_package(gRPC CONFIG)
-if(gRPC_FOUND)
-  message(STATUS "Found gRPC: ${GRPC_ROOT}")
-else()
-  message(FATAL_ERROR "gRPC librairies not found")
+if(O2_MONITORING_CONTROL_ENABLE)
+  find_package(gRPC CONFIG)
+  if(gRPC_FOUND)
+    message(STATUS "Found gRPC: ${GRPC_ROOT}")
+  else()
+    message(FATAL_ERROR "gRPC librairies not found")
+  endif()
 endif()
 
 if(RDKAFKA_ROOT)
